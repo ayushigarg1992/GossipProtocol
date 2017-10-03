@@ -1,32 +1,41 @@
 # in lib/chat/server.ex
 defmodule Server do
   use GenServer
-  # API
-  def start_link(name) do
+def start_link(name) do
     
-    GenServer.start_link(__MODULE__, {})
+    GenServer.start_link(__MODULE__, {},name: via_tuple(name))
   end
-  # SERVER
-  def init(args) do
-    args =  {0,0,1}
-    {:ok, args}
+  def init(state) do
+    state =  {0,0,1}
+    {:ok, state}
+
   end
-  def handle_cast({:add_message, new_message}, messages) do
-    {:noreply, [new_message | messages]}
+  
+  def handle_cast({:add_message,algo}, state) do
+    {count,s,w} = state
+    IO.puts "count: #{count} s: #{s} w: #{w}"
+    if algo == "gossip" do
+      IO.puts "It is gossip"
+      count = count+1
+      IO.puts "count now is #{count}"
+    
+    else
+    end
+    state = {count,s,w}
+    {:noreply, state}
   end
-  def handle_call(:get_messages, _from, messages) do
-    {:reply, messages, messages}
+  def handle_call(:get_state, _from, state) do
+    {:reply, state, state}
   end
  
-  def add_message(room_name, message) do
+  def send_rumor(node_name, algo) do
     
-    GenServer.cast(via_tuple(room_name), {:add_message, message})
+    GenServer.cast(via_tuple(node_name), {:add_message,algo})
   end
-  def get_messages(room_name) do
-    GenServer.call(via_tuple(room_name), :get_messages)
+  def get_node_state(node_name) do
+    GenServer.call(via_tuple(node_name), :get_state)
   end
-  defp via_tuple(room_name) do
-    
-    {:via, MyRegistry, {:chat_room, room_name}}
+  def via_tuple(node_name) do
+    {:via, MyRegistry, {:node_name, node_name}}
   end
 end

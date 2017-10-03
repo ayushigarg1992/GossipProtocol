@@ -5,20 +5,20 @@ defmodule MyRegistry do
       
       GenServer.start_link(__MODULE__, nil, name: :registry)
     end
-    def whereis_name(room_name) do
-      GenServer.call(:registry, {:whereis_name, room_name})
+    def whereis_name(node_name) do
+      GenServer.call(:registry, {:whereis_name, node_name})
     end
-    def register_name(room_name, pid) do
-      GenServer.call(:registry, {:register_name, room_name, pid})
+    def register_name(node_name, pid) do
+      GenServer.call(:registry, {:register_name, node_name, pid})
     end
-    def unregister_name(room_name) do
-      GenServer.cast(:registry, {:unregister_name, room_name})
+    def unregister_name(node_name) do
+      GenServer.cast(:registry, {:unregister_name, node_name})
     end
-    def send(room_name, message) do
+    def send(node_name, message) do
       
-      case whereis_name(room_name) do
+      case whereis_name(node_name) do
         :undefined ->
-          {:badarg, {room_name, message}}
+          {:badarg, {node_name, message}}
         pid ->
           Kernel.send(pid, message)
           pid
@@ -29,15 +29,15 @@ defmodule MyRegistry do
      
       {:ok, Map.new}
     end
-    def handle_call({:whereis_name, room_name}, _from, state) do
-      {:reply, Map.get(state, room_name, :undefined), state}
+    def handle_call({:whereis_name, node_name}, _from, state) do
+      {:reply, Map.get(state, node_name, :undefined), state}
     end
-    def handle_call({:register_name, room_name, pid}, _from, state) do
-        case Map.get(state, room_name) do
+    def handle_call({:register_name, node_name, pid}, _from, state) do
+        case Map.get(state, node_name) do
           nil ->
             # When a new process is registered, we start monitoring it.
             Process.monitor(pid)
-            {:reply, :yes, Map.put(state, room_name, pid)}
+            {:reply, :yes, Map.put(state, node_name, pid)}
           _ ->
             {:reply, :no, state}
         end
@@ -50,8 +50,8 @@ defmodule MyRegistry do
         remove = fn {_key, pid} -> pid  != pid_to_remove end
         Enum.filter(state, remove) |> Enum.into(%{})
       end
-    def handle_cast({:unregister_name, room_name}, state) do
+    def handle_cast({:unregister_name, node_name}, state) do
       
-      {:noreply, Map.delete(state, room_name)}
+      {:noreply, Map.delete(state, node_name)}
     end
   end   
