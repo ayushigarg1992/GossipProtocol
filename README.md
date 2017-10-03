@@ -1,6 +1,6 @@
 # Project2
 
-**TODO: Add description**
+**The idea is to create a network of nodes which transmit data in a defined topology. This project works on transmission of a rumor to nodes in a network and the transmission stops when a predetermined number of transmissions is reached. Gossip protocol and push sum protocol are implemented**
 
 ## Installation
 
