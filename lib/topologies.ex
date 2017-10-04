@@ -1,17 +1,25 @@
 defmodule Topologies do
 
-    def createLine(num,neighbors) do
+    def createLine(num) do
+        neighbor = []
         pids = Enum.map(1..num, fn(x) ->Manager.start_node(x)end )
         list=Enum.each(pids, fn(x)->IO.inspect(x)end)
-        if n==0 do neighbors = [[1]|neighbors] end
-        
-                    if n>=1 && n<=num-1 do neighbors = [[n-1,n+1]|neighbors] end
-        for n <- 0..num do
-          
-            {_,pid} = Enum.at(pids,n)
+        for n <- 0..num-1 do
+            if (n==0) do
+                {_,pid} = Enum.at(pids,1)
+                neighbor = [pid|neighbor]
             
-            if n==num do neighbors = [[num-1]|neighbors] end
-            IO.inspect(Enum.at(neighbors,0))
+            else if (n==num-1) do
+                {_,pid} = Enum.at(pids,n-1)
+                neighbor = [pid|neighbor]
+            
+            else 
+                {_,pid1} = Enum.at(pids,n+1)
+                {_,pid} = Enum.at(pids,n-1)
+                neighbor = [pid,pid1|neighbor]
+            
+            end
+            end
         end
         
     end
