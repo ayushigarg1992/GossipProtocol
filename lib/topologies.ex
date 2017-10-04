@@ -153,8 +153,7 @@ defmodule Topologies do
     end
     end
     end
-    end
-        
+    end    
     end
 
     def createFull(num) do
