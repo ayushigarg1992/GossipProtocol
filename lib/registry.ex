@@ -54,4 +54,4 @@ defmodule MyRegistry do
       
       {:noreply, Map.delete(state, node_name)}
     end
-  end   
+  end

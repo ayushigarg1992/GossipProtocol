@@ -1,4 +1,4 @@
-# in lib/chat/server.ex
+
 defmodule Server do
   use GenServer
 def start_link(name,neigh) do
