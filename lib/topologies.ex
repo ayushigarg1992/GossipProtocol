@@ -68,64 +68,100 @@ defmodule Topologies do
 
         #end
        # start_transmit(neighbors,pids,num)
+       
         
     end
 
-        def createGrid(num) do
+        def chooseRandom(neigh, pid,pids) do
+           rand = Enum.random(pids)
+           if (rand == pid || Enum.member?(neigh, rand) ) do
+              chooseRandom(neigh,pid,pids)
+            else rand
+            end
+               
+        end
+
+        def createImpGrid(num) do
         neighbor=[]
         root = :math.sqrt(num)
         root = Float.ceil(root)
         {root,_} = Integer.parse("#{root}")
         num = root* root
-        IO.puts(root)
-        pids = Enum.map(1..root, fn(x) ->Manager.start_node(x) 
-                Enum.map(1..root, fn(x) ->Manager.start_node(x)end)end)
-                list=Enum.each(pids, fn(x)->IO.inspect(x)end)
+        pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
+                Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
         
         for i <- 0..root-1 do
             for j <- 0..root-1 do
+                neigh = []
                 if (i==0 && j == 0) do
-                    {_,pid} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    neighbor = [pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i+1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    neigh = [pid1,pid|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i==0 && j == root-1) do
-                    {_,pid} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i+1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid1,pid|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i == root-1 && j == root-1) do
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid1,pid|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i == root-1 && j == 0) do
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    neighbor = [pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    neigh = [pid1,pid|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (j==0) do
-                    {_,pid} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    {_,pid0} = Enum.at(Enum.at(pids,i-1),j)
-                    neighbor = [pid0,pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i+1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    pid0 = Enum.at(Enum.at(pids,i-1),j)
+                    neigh = [pid0,pid1,pid|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i==0) do
-                    {_,pid} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    {_,pid0} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid0,pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i+1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    pid0 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid0,pid1,pid|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i==root-1) do
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    {_,pid0} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid0,pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    pid0 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid0,pid1,pid|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (j==root-1) do
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid0} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid0,pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i+1),j)
+                    pid0 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid0,pid1,pid|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid0} = Enum.at(Enum.at(pids,i),j-1)
-                    {_,pid2} = Enum.at(Enum.at(pids,i),j+1)
-                    neighbor = [pid0,pid1,pid,pid2|neighbor] 
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i+1),j)
+                    pid0 = Enum.at(Enum.at(pids,i),j-1)
+                    pid2 = Enum.at(Enum.at(pids,i),j+1)
+                    neigh = [pid0,pid1,pid,pid2|neigh]
+                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    neigh = [rand|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh}) 
                 end
                 end
             end
@@ -138,60 +174,69 @@ defmodule Topologies do
     end
     end
 
-    def createImpGrid(num) do
-    neighbor = []
+    def createGrid(num) do
+   neighbor=[]
         root = :math.sqrt(num)
         root = Float.ceil(root)
         {root,_} = Integer.parse("#{root}")
-        IO.puts(root)
-        pids = Enum.map(1..root, fn(x) ->Manager.start_node(x) 
-                Enum.map(1..root, fn(x) ->Manager.start_node(x)end)end)
-                list=Enum.each(pids, fn(x)->IO.inspect(x)end)
-
-                for i <- 0..root-1 do
+        num = root* root
+        pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
+                Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
+        
+        for i <- 0..root-1 do
             for j <- 0..root-1 do
+                neigh = []
                 if (i==0 && j == 0) do
-                    {_,pid} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    neighbor = [pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i+1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    neigh = [pid1,pid|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i==0 && j == root-1) do
-                    {_,pid} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i+1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid1,pid|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i == root-1 && j == root-1) do
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid1,pid|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i == root-1 && j == 0) do
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    neighbor = [pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    neigh = [pid1,pid|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (j==0) do
-                    {_,pid} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    {_,pid0} = Enum.at(Enum.at(pids,i-1),j)
-                    neighbor = [pid0,pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i+1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    pid0 = Enum.at(Enum.at(pids,i-1),j)
+                    neigh = [pid0,pid1,pid|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i==0) do
-                    {_,pid} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    {_,pid0} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid0,pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i+1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    pid0 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid0,pid1,pid|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (i==root-1) do
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i),j+1)
-                    {_,pid0} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid0,pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i),j+1)
+                    pid0 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid0,pid1,pid|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else if (j==root-1) do
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid0} = Enum.at(Enum.at(pids,i),j-1)
-                    neighbor = [pid0,pid1,pid|neighbor]
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i+1),j)
+                    pid0 = Enum.at(Enum.at(pids,i),j-1)
+                    neigh = [pid0,pid1,pid|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh})
                 else
-                    {_,pid} = Enum.at(Enum.at(pids,i-1),j)
-                    {_,pid1} = Enum.at(Enum.at(pids,i+1),j)
-                    {_,pid0} = Enum.at(Enum.at(pids,i),j-1)
-                    {_,pid2} = Enum.at(Enum.at(pids,i),j+1)
-                    neighbor = [pid0,pid1,pid,pid2|neighbor] 
+                    pid = Enum.at(Enum.at(pids,i-1),j)
+                    pid1 = Enum.at(Enum.at(pids,i+1),j)
+                    pid0 = Enum.at(Enum.at(pids,i),j-1)
+                    pid2 = Enum.at(Enum.at(pids,i),j+1)
+                    neigh = [pid0,pid1,pid,pid2|neigh]
+                    send(Enum.at(Enum.at(pids,i),j),{neigh}) 
                 end
                 end
             end
@@ -201,7 +246,7 @@ defmodule Topologies do
     end
     end
     end
-    end    
+    end
     end
 
     def createFull(num) do

@@ -5,12 +5,9 @@ defmodule Project2 do
 
   @doc """
   Hello world.
-
   ## Examples
-
       iex> Project2.hello
       :world
-
   """
   def start_up(num,topo,algo) do
     MyRegistry.start_link
