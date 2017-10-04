@@ -21,6 +21,7 @@ defmodule Topologies do
             end
             end
         end
+        
     end
 
         def createGrid(num) do
