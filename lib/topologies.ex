@@ -3,6 +3,11 @@ defmodule Topologies do
     def createLine(num) do
         pids = Enum.map(1..num, fn(x) ->Manager.start_node(x)end )
         list=Enum.each(pids, fn(x)->IO.inspect(x)end)
+        for n <- 0..num-1 do
+          IO.puts(n)
+         {_,pid} = Enum.at(pids,n)
+          IO.inspect(pid)
+        end
     end
 
     def createGrid(num) do
@@ -30,6 +35,6 @@ defmodule Topologies do
     def createFull(num) do
         pids = Enum.map(1..num, fn(x) ->Manager.start_node(x)end )
         list=Enum.each(pids, fn(x)->IO.inspect(x)end)
-        neighbor = Enum.all(pids)
+        
     end
 end
