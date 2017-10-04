@@ -15,9 +15,8 @@ def start_link(name) do
     {count,s,w} = state
     IO.puts "count: #{count} s: #{s} w: #{w}"
     if algo == "gossip" do
-      IO.puts "It is gossip"
+      
       count = count+1
-      IO.puts "count now is #{count}"
     
     else
     end

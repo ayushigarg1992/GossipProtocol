@@ -12,7 +12,21 @@ defmodule Project2 do
       :world
 
   """
-  def hello do
-    :world
+  def start_up(num,topo,algo) do
+    MyRegistry.start_link
+    Manager.start_link
+    Server.start_link("first node")
+    cond do
+      
+     topo== "line" ->
+      Topologies.createLine(num)
+    topo == "grid" -> 
+      Topologies.createGrid(num)
+    topo == "full" ->
+      Topologies.createFull(num)
+    topo == "impgrid"
+      Topologies.createImpGrid(num)
+    
+    end
   end
 end
