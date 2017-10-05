@@ -42,9 +42,6 @@ defmodule Topologies do
         num = root* root
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
-                IO.inspect(pids)
-                
-        
         
         Enum.each 0..root-1, fn i ->
             
@@ -156,8 +153,6 @@ defmodule Topologies do
         root = Float.ceil(root)
         {root,_} = Integer.parse("#{root}")
         num = root* root
-        IO.inspect (num)
-        IO.inspect (root)
        
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
@@ -168,6 +163,7 @@ defmodule Topologies do
             Enum.each 0..root-1, fn j ->
                 neigh = []
                count = (i*root) + j+1
+               IO.inspect(count)
                 me = Enum.at(Enum.at(pids,i),j)
                 
                 if (i==0 && j == 0) do
