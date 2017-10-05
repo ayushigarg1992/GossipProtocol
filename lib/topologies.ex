@@ -1,8 +1,8 @@
 defmodule Topologies do
     def rep do
-       receive do {neigh}-> 
+       receive do {neigh,me}-> 
             Enum.each neigh, fn n->   
-            Manager.start_node(n,neigh) 
+            Manager.start_node(me,neigh,node) 
             
         end 
     end
@@ -12,19 +12,24 @@ defmodule Topologies do
         pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end)
         Enum.each 0..num-1, fn id ->
             neigh = []
+            me = Enum.at(pids,id)
             if id==0 do
-            neigh = [Enum.at(pids,id+1)|neigh]
-            send(Enum.at(pids,id),neigh)
+            
+            neigh = [Enum.at(pids,id+1)]
+            send(me,{neigh,me})
+            IO.puts "I am #{inspect Enum.at(pids,id)} and neighnor is #{inspect Enum.at(pids,id+1)}"
             else if id==num-1 do
-            neigh = [Enum.at(pids,id-1)|neigh]
-            send(Enum.at(pids,id),neigh)
+            neigh = [Enum.at(pids,id-1)]
+            send(me,{neigh,me})
+            IO.puts "I am #{inspect Enum.at(pids,id)} and neighnor is #{inspect Enum.at(pids,id-1)}"
             else
-            neigh = [Enum.at(pids,id-1),Enum.at(pids,id+1)|neigh]
-            send(Enum.at(pids,id),{neigh})
-           
+            neigh = [Enum.at(pids,id-1),Enum.at(pids,id+1)]
+            send(me,{neigh,me})
+            IO.puts "I am #{inspect Enum.at(pids,id)} and neighnor is #{inspect Enum.at(pids,id+1)}, and #{inspect Enum.at(pids,id-1)}"
             end
-
+            
             end
+            neigh = []
         end
             # if (x==0) do
             
