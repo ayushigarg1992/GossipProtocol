@@ -20,9 +20,10 @@ def start_link(name,neigh,node) do
       if  count<=10 do
         
         count = count+1
-      else if count>=10 do Process.exit(self,:kill)
-        end
+      else if count>=10 do Process.exit(self,:kill) end
       end
+    else 
+      
     end  
     state = {count,s,w}
     

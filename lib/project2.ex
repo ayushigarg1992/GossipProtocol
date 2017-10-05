@@ -9,19 +9,27 @@ defmodule Project2 do
       iex> Project2.hello
       :world
   """
-  def start_up(num,topo,algo) do
+  def main(args) do
+    start_up(args)
+  end
+  
+  def start_up(args) do
+    {num,_} = Integer.parse(Enum.at(args,0))
+    algo = Enum.at(args,2)
+    topo = Enum.at(args,1)
+
     MyRegistry.start_link
     Manager.start_link
-    Server.start_link("first node")
+    #num = Integer.parse(num)
     cond do
       
      topo== "line" ->
       Topologies.createLine(num)
-    topo == "grid" -> 
+    topo == "2D" -> 
       Topologies.createGrid(num)
     topo == "full" ->
       Topologies.createFull(num)
-    topo == "impgrid"
+    topo == "imp2D"
       Topologies.createImpGrid(num)
     
     end
