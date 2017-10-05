@@ -36,20 +36,8 @@ defmodule Topologies do
         def chooseRandom(neigh, pid,pids) do
            rand = Enum.random(pids)
            IO.inspect(rand)
-           x = length(rand)
-           if(rand == pid || Enum.member?(neigh, rand)) do
-                #Enum.reject(rand, fn -> (rand == pid || Enum.member?(neigh, rand))end)
-                IO.inspect(rand)
-                chooseRandom(neigh, pid,pids)
            
-            else
-                
-                 x = length(rand)
-                 
-                 a = Enum.at(rand,x-1)
-                 
-                 a
-            end
+           
                
         end
 
@@ -61,7 +49,9 @@ defmodule Topologies do
         num = root* root
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
-        IO.inspect(pids)
+        
+        list = Enum.each(1..root, fn(x)-> pids  end)
+        IO.inspect(list)
         count = 0;
         Enum.each 0..root-1, fn i ->
             Enum.each 0..root-1, fn j ->
@@ -179,7 +169,7 @@ defmodule Topologies do
         count = 0;
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
-        
+        IO.inspect(pids)
         Enum.each 0..root-1, fn i ->
             Enum.each 0..root-1, fn j ->
                 neigh = []
