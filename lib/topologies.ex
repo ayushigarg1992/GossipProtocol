@@ -1,7 +1,7 @@
 defmodule Topologies do
     def rep do
        receive do {neigh,me}-> 
-            Enum.each neigh, fn n->   
+            Enum.each neigh, fn node->   
             Manager.start_node(me,neigh,node) 
             
         end 
@@ -17,64 +17,21 @@ defmodule Topologies do
             
             neigh = [Enum.at(pids,id+1)]
             send(me,{neigh,me})
-            IO.puts "I am #{inspect Enum.at(pids,id)} and neighnor is #{inspect Enum.at(pids,id+1)}"
+            IO.puts "I am #{inspect Enum.at(pids,id)} and neighbor is #{inspect Enum.at(pids,id+1)}"
             else if id==num-1 do
             neigh = [Enum.at(pids,id-1)]
             send(me,{neigh,me})
-            IO.puts "I am #{inspect Enum.at(pids,id)} and neighnor is #{inspect Enum.at(pids,id-1)}"
+            IO.puts "I am #{inspect Enum.at(pids,id)} and neighbor is #{inspect Enum.at(pids,id-1)}"
             else
             neigh = [Enum.at(pids,id-1),Enum.at(pids,id+1)]
             send(me,{neigh,me})
-            IO.puts "I am #{inspect Enum.at(pids,id)} and neighnor is #{inspect Enum.at(pids,id+1)}, and #{inspect Enum.at(pids,id-1)}"
+            IO.puts "I am #{inspect Enum.at(pids,id)} and neighbor is #{inspect Enum.at(pids,id+1)}, and #{inspect Enum.at(pids,id-1)}"
             end
             
             end
             neigh = []
         end
-            # if (x==0) do
-            
-                
-            #     else if (x==num-1) do
-                    
-                    
-                    
-            #     else 
-                
-                
-                
-            #     end
-            # end
-
-        
-        # for n <- 0..num-1 do
-        #     if (n==0) do
-        #         {_,pid} = Enum.at(pids,1)
-        #         IO.puts "#{pid}"
-        #         neighbors = [pid|neighbors]
-                
-        #     else if (n==num-1) do
-        #         {_,pid} = Enum.at(pids,n-1)
-        #         neighbors = [pid|neighbors]
-        #         IO.puts "#{pid}"
-                
-                
-        #     else 
-        #         {_,pid1} = Enum.at(pids,n+1)
-        #         {_,pid} = Enum.at(pids,n-1)
-        #         neighbors = [pid,pid1|neighbors]
-        #         IO.puts "#{pid}"
-                
-                
-        #     end
-        #     #to-do in the morning. Figure out message sending
-        #     #Enum.each(list2,  fn neigh-> Server.send_rumor(neigh,n,"gossip")end)
-        #     end
-
-
-        #end
-       # start_transmit(neighbors,pids,num)
-       
-        
+          
     end
 
         def chooseRandom(neigh, pid,pids) do

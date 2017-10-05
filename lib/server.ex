@@ -3,9 +3,9 @@ defmodule Server do
   use GenServer
 def start_link(name,neigh,node) do
     
-    GenServer.start_link(__MODULE__, {},name: via_tuple(name))
+    GenServer.start_link(__MODULE__, {},name: via_tuple(node))
     Enum.each neigh, fn i-> IO.puts " Node: #{inspect name} Neighbor: #{inspect i}" end
-    #send_rumor(neigh,name,"gossip")
+    send_rumor(neigh,name,"gossip")
     
   end
   def init(state) do
