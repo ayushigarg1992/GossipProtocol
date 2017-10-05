@@ -1,12 +1,13 @@
 defmodule Topologies do
     def rep do
-       receive do {neigh,me}-> 
+       receive do {neigh,me,id}-> 
             Enum.each neigh, fn node-> 
-            Manager.start_node(me,neigh,node) 
+            Manager.start_node(me,neigh,node,id) 
             
         end 
     end
     end
+    
     def createLine(num) do
         neighbors = []
         pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end)
@@ -16,13 +17,13 @@ defmodule Topologies do
             if id==0 do
             
             neigh = [Enum.at(pids,id+1)]
-            send(me,{neigh,me})
+            send(me,{neigh,me,id})
             else if id==num-1 do
             neigh = [Enum.at(pids,id-1)]
-            send(me,{neigh,me})
+            send(me,{neigh,me,id})
             else
             neigh = [Enum.at(pids,id-1),Enum.at(pids,id+1)]
-            send(me,{neigh,me})
+            send(me,{neigh,me,id})
             end
             
             end

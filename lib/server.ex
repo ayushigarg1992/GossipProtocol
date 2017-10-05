@@ -1,15 +1,15 @@
 defmodule Server do
   use GenServer
-def start_link(name,neigh,node) do
+def start_link(name,neigh,node,id) do
     
-    GenServer.start_link(__MODULE__, {},name: via_tuple(node))
+    GenServer.start_link(__MODULE__, {0,id,1},name: via_tuple(node))
     {count,s,w} = get_state(node)
     if count<10 do
     send_rumor(neigh,name,"push",node)
     end
   end
   def init(state) do
-    state =  {0,0,1}
+    #state =  state
     {:ok, state}
 
   end
