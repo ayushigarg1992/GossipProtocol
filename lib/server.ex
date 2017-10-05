@@ -16,24 +16,32 @@ defmodule Server do
   end
   
   def handle_cast({:add_message,algo,starter,me}, state) do
-    {count,s,w,ratio,pre1,pre2,prev3,diff} = state
+    {count,s,w,ratio,prev1,prev2,prev3,diff} = state
     if algo=="gossip" do  
       if  count<=10 do
         count = count+1
       else if count>=10 do Process.exit(self,:kill) end
       end
     else 
-      ratio = s/w
-      s=s/2
-      w=w/2
-      diff = ratio -(s/w)
+      
       if diff<0.00000000001 do
+        IO.puts diff
         Process.exit(self,:kill)
       else
-        IO.puts "#{inspect me} has s=#{s} and w=#{w}"
+        
+        
+        prev1=prev2
+        prev2=prev3
+        prev3 = diff
+
+        diff = ratio-s/w
+        ratio = s/w
+        s=s+s/2
+        w=w+w/2
+
       end
     end  
-    state = {count,s,w,ratio,pre1,pre2,prev3,diff}
+    state = {count,s,w,ratio,prev1,prev2,prev3,diff}
     
     {:noreply, state}
   end
@@ -45,7 +53,7 @@ defmodule Server do
   def send_rumor(neigh,starter, algo,me) do
     chosen = Enum.random(neigh)
     GenServer.cast(via_tuple(chosen), {:add_message,algo,starter,me})
-    {count,s,w,ratio,pre1,pre2,prev3,diff} = get_state(me)
+    {count,s,w,ratio,prev1,prev2,prev3,diff} = get_state(me)
     if algo == "gossip" do
       
       if(count<10) do
@@ -54,11 +62,8 @@ defmodule Server do
         IO.puts "Node #{inspect me} has heard the rumor 10 times"
       end
     else
-      ratio = s/w
-      s=s/2
-      w=w/2
-      diff = ratio -(s/w)
-      if diff>0.00000000001 do
+      
+      if diff>0.0000000001 do
       send_rumor(neigh,starter,algo,me)
       else
         IO.puts "Node #{inspect me} has s: #{s} and w: #{w} and s/w is #{inspect s/w}"
