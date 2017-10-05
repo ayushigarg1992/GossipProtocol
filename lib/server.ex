@@ -21,7 +21,7 @@ def start_link(name,neigh,node,id) do
         
         count = count+1
       else if count>=10 do Process.exit(self,:kill) end
-      end
+      
     else 
       ratio = s/w
       s=s/2
@@ -29,12 +29,15 @@ def start_link(name,neigh,node,id) do
       diff = ratio -(s/w)
       if diff<0.00000000001 do
         Process.exit(self,:kill)
+      else
+        IO.puts "#{inspect me} has s=#{s} and w=#{w}"
       end
     end  
     state = {count,s,w}
     
     {:noreply, state}
   end
+  
   def handle_call(:get_state, _from, state) do
     {:reply, state, state}
   end
