@@ -1,4 +1,3 @@
-
 defmodule Server do
   use GenServer
 def start_link(name,neigh,node) do
