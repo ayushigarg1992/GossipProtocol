@@ -17,15 +17,12 @@ defmodule Topologies do
             
             neigh = [Enum.at(pids,id+1)]
             send(me,{neigh,me})
-            IO.puts "I am #{inspect Enum.at(pids,id)} and neighbor is #{inspect Enum.at(pids,id+1)}"
             else if id==num-1 do
             neigh = [Enum.at(pids,id-1)]
             send(me,{neigh,me})
-            IO.puts "I am #{inspect Enum.at(pids,id)} and neighbor is #{inspect Enum.at(pids,id-1)}"
             else
             neigh = [Enum.at(pids,id-1),Enum.at(pids,id+1)]
             send(me,{neigh,me})
-            IO.puts "I am #{inspect Enum.at(pids,id)} and neighbor is #{inspect Enum.at(pids,id+1)}, and #{inspect Enum.at(pids,id-1)}"
             end
             
             end

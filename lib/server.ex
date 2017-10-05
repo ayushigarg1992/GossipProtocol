@@ -4,8 +4,7 @@ defmodule Server do
 def start_link(name,neigh,node) do
     
     GenServer.start_link(__MODULE__, {},name: via_tuple(node))
-    Enum.each neigh, fn i-> IO.puts " Node: #{inspect name} Neighbor: #{inspect i}" end
-    send_rumor(neigh,name,"gossip")
+    send_rumor(neigh,name,"gossip",node)
     
   end
   def init(state) do
@@ -14,14 +13,14 @@ def start_link(name,neigh,node) do
 
   end
   
-  def handle_cast({:add_message,algo,starter}, state) do
+  def handle_cast({:add_message,algo,starter,me}, state) do
     {count,s,w} = state
     IO.puts "count: #{count} s: #{s} w: #{w}"
     if algo=="gossip" do  
       if  count<=10 do
         
         count = count+1
-        IO.inspect "My count is #{count} from #{inspect starter}"
+        IO.inspect "#{inspect me} count is #{count} from #{inspect starter}"
       else if count>=10 do Process.exit(self,:kill)
         end
       end
@@ -34,11 +33,10 @@ def start_link(name,neigh,node) do
     {:reply, state, state}
   end
  
-  def send_rumor(neigh,starter, algo) do
+  def send_rumor(neigh,starter, algo,me) do
     chosen = Enum.random(neigh)
-    IO.inspect "I am the chosen node:#{inspect chosen} and the starter is #{inspect starter}"
-    GenServer.cast(via_tuple(chosen), {:add_message,algo,starter})
-    #send_rumor(neigh,starter,algo)
+    GenServer.cast(via_tuple(chosen), {:add_message,algo,starter,me})
+    send_rumor(neigh,starter,algo,me)
   end
 
   def get_node_state(node_name) do
