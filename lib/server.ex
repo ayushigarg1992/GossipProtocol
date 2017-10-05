@@ -1,13 +1,14 @@
 defmodule Server do
   use GenServer
-def start_link(name,neigh,node,id) do
+  def start_link(name,neigh,node,id) do
     
     GenServer.start_link(__MODULE__, {0,id,1},name: via_tuple(node))
     {count,s,w} = get_state(node)
     if count<10 do
-    send_rumor(neigh,name,"push",node)
+      send_rumor(neigh,name,"push",node)
     end
   end
+  
   def init(state) do
     #state =  state
     {:ok, state}
@@ -18,10 +19,9 @@ def start_link(name,neigh,node,id) do
     {count,s,w} = state
     if algo=="gossip" do  
       if  count<=10 do
-        
         count = count+1
       else if count>=10 do Process.exit(self,:kill) end
-      
+      end
     else 
       ratio = s/w
       s=s/2
@@ -61,7 +61,7 @@ def start_link(name,neigh,node,id) do
       if diff>0.00000000001 do
       send_rumor(neigh,starter,algo,me)
       else
-        IO.puts "Node #{inspect me} has s: #{s} and w: #{w}"
+        IO.puts "Node #{inspect me} has s: #{s} and w: #{w} and s/w is #{inspect s/w}"
       end
     end
    end

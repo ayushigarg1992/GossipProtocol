@@ -32,118 +32,112 @@ defmodule Topologies do
           
     end
 
-        def chooseRandom(neigh, pid,pids) do
-           rand = Enum.random(pids)
-           x = length(rand)
-           if(rand == pid || Enum.member?(neigh, rand)) do
-                
-                chooseRandom(neigh, pid,pids)
-           
-           
-               
-        end
 
         def createImpGrid(num) do
         neighbor=[]
+        list = []
         root = :math.sqrt(num)
         root = Float.ceil(root)
         {root,_} = Integer.parse("#{root}")
         num = root* root
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
-        count = 0;
+                IO.inspect(pids)
+                
+        
+        
         Enum.each 0..root-1, fn i ->
+            
             Enum.each 0..root-1, fn j ->
-                count = count + 1
-                IO.inspect(count)
                 neigh = []
+                count = (i*root) + j+1
                 me = Enum.at(Enum.at(pids,i),j)
-                IO.inspect(me)
+                
                 if (i==0 && j == 0) do
-                    IO.puts("hi")
+                   
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                    
                     neigh = [pid1,pid]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    rand = Enum.at(Enum.at(pids,i+1),j+1) 
                     neigh = [rand|neigh]
-                    IO.inspect(neigh)
-                    send(me,{neigh, me})
+                    
+                    send(me,{neigh, me, count})
                 else if (i==0 && j == root-1) do
-                IO.puts("hi1")
+              
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid1,pid]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    rand = Enum.at(Enum.at(pids,i+1),j-1) 
                     neigh = [rand|neigh]
-                    IO.inspect(neigh)
-                    send(me,{neigh, me})
+                    
+                    send(me,{neigh, me, count})
                 else if (i == root-1 && j == root-1) do
-                IO.puts("hi2")
+               
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid1,pid]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    rand = Enum.at(Enum.at(pids,i-1),j-1) 
                     neigh = [rand|neigh]
-                    IO.inspect(neigh)
-                    send(me,{neigh, me})
+                   
+                    send(me,{neigh, me,count})
                 else if (i == root-1 && j == 0) do
-                IO.puts("hi3")
+              
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     neigh = [pid1,pid]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    rand = Enum.at(Enum.at(pids,i-1),j+1) 
                     neigh = [rand|neigh]
-                    IO.inspect(neigh)
-                    send(me,{neigh, me})
+               
+                    send(me,{neigh, me, count})
                 else if (j==0) do
-                IO.puts("hi4")
+               
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i-1),j)
                     neigh = [pid0,pid1,pid]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
-                    neigh = [rand|neigh]
+                    rand = Enum.at(Enum.at(pids,i+1),j+1)
+                    
                     IO.inspect(neigh)
-                    send(me,{neigh, me})
+                    send(me,{neigh, me, count})
                 else if (i==0) do
-                IO.puts("hi5")
+                
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    rand = Enum.at(Enum.at(pids,i+1),j-1) 
                     neigh = [rand|neigh]
-                    send(me,{neigh, me})
+                    send(me,{neigh, me, count})
                 else if (i==root-1) do
-                IO.puts("hi6")
+              
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    rand = Enum.at(Enum.at(pids,i-1),j-1) 
                     neigh = [rand|neigh]
-                    send(me,{neigh, me})
+                    send(me,{neigh, me, count})
                 else if (j==root-1) do
-                IO.puts("hi7")
+                
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    rand = Enum.at(Enum.at(pids,i-1),j-1) 
                     neigh = [rand|neigh]
-                    send(me,{neigh, me})
+                    send(me,{neigh, me, count})
                 else
-                IO.puts("hi8")
+               
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     pid2 = Enum.at(Enum.at(pids,i),j+1)
                     neigh = [pid0,pid1,pid,pid2]
-                    rand = chooseRandom(neigh,Enum.at(Enum.at(pids,i),j),pids) 
+                    rand = Enum.at(Enum.at(pids,i-1),j+1)
                     neigh = [rand|neigh]
-                    send(me,{neigh, me}) 
+                    send(me,{neigh, me, count}) 
                 end
                 end
             end
@@ -154,7 +148,6 @@ defmodule Topologies do
     end
     end
     end
-    IO.puts("exit")
     end
 
     def createGrid(num) do
@@ -165,77 +158,77 @@ defmodule Topologies do
         num = root* root
         IO.inspect (num)
         IO.inspect (root)
-        count = 0;
+       
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
-        IO.inspect(pids)
+        
+        
+
         Enum.each 0..root-1, fn i ->
             Enum.each 0..root-1, fn j ->
                 neigh = []
-                count = count + 1
-                IO.inspect (count)
+               count = (i*root) + j+1
                 me = Enum.at(Enum.at(pids,i),j)
-                IO.inspect (me)
+                
                 if (i==0 && j == 0) do
-                    IO.puts("hi")
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     neigh = [pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count})
                 else if (i==0 && j == root-1) do
-                IO.puts("hi1")
+               
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count})
                 else if (i == root-1 && j == root-1) do
-                IO.puts("hi2")
+               
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count})
                 else if (i == root-1 && j == 0) do
-                IO.puts("hi3")
+               
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     neigh = [pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count})
                 else if (j==0) do
-                IO.puts("hi4")
+              
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i-1),j)
                     neigh = [pid0,pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count})
                 else if (i==0) do
-                IO.puts("hi5")
+             
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count})
                 else if (i==root-1) do
-                IO.puts("hi6")
+              
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count})
                 else if (j==root-1) do
-                IO.puts("hi7")
+                
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count})
                 else
-                IO.puts("hi8")
+              
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     pid2 = Enum.at(Enum.at(pids,i),j+1)
                     neigh = [pid0,pid1,pid,pid2]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, me}) 
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, me, count}) 
                 end
                 end
             end
@@ -246,7 +239,6 @@ defmodule Topologies do
     end
     end
     end
-     IO.puts("I have exited the loop")
     end
 
     def createFull(num) do
