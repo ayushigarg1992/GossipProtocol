@@ -1,9 +1,7 @@
 defmodule Topologies do
     def rep do
        receive do {neigh,me}-> 
-            IO.inspect(neigh)
             Enum.each neigh, fn node-> 
-            IO.inspect(node)  
             Manager.start_node(me,neigh,node) 
             
         end 
@@ -35,11 +33,9 @@ defmodule Topologies do
 
         def chooseRandom(neigh, pid,pids) do
            rand = Enum.random(pids)
-           IO.inspect(rand)
            x = length(rand)
            if(rand == pid || Enum.member?(neigh, rand)) do
-                #Enum.reject(rand, fn -> (rand == pid || Enum.member?(neigh, rand))end)
-                IO.inspect(rand)
+                
                 chooseRandom(neigh, pid,pids)
            
             else
@@ -61,7 +57,6 @@ defmodule Topologies do
         num = root* root
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
-        IO.inspect(pids)
         count = 0;
         Enum.each 0..root-1, fn i ->
             Enum.each 0..root-1, fn j ->

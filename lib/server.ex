@@ -5,7 +5,7 @@ def start_link(name,neigh,node) do
     GenServer.start_link(__MODULE__, {},name: via_tuple(node))
     {count,s,w} = get_state(node)
     if count<10 do
-    send_rumor(neigh,name,"gossip",node)
+    send_rumor(neigh,name,"push",node)
     end
   end
   def init(state) do
@@ -23,7 +23,13 @@ def start_link(name,neigh,node) do
       else if count>=10 do Process.exit(self,:kill) end
       end
     else 
-      
+      ratio = s/w
+      s=s/2
+      w=w/2
+      diff = ratio -(s/w)
+      if diff<0.00000000001 do
+        Process.exit(self,:kill)
+      end
     end  
     state = {count,s,w}
     
@@ -37,12 +43,25 @@ def start_link(name,neigh,node) do
     chosen = Enum.random(neigh)
     GenServer.cast(via_tuple(chosen), {:add_message,algo,starter,me})
     {count,s,w} = get_state(me)
-    if(count<10) do
-    send_rumor(neigh,starter,algo,me)
+    if algo == "gossip" do
+      
+      if(count<10) do
+      send_rumor(neigh,starter,algo,me)
+      else
+        IO.puts "Node #{inspect me} has heard the rumor 10 times"
+      end
     else
-      IO.puts "Node #{inspect me} has heard the rumor 10 times"
+      ratio = s/w
+      s=s/2
+      w=w/2
+      diff = ratio -(s/w)
+      if diff>0.00000000001 do
+      send_rumor(neigh,starter,algo,me)
+      else
+        IO.puts "Node #{inspect me} has s: #{s} and w: #{w}"
+      end
     end
-  end
+   end
   
   def get_state(node_name) do
     GenServer.call(via_tuple(node_name), :get_state)
