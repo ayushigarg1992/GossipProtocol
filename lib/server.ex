@@ -43,7 +43,7 @@ defmodule Server do
       end
     
     state = {count,s,w,ratio,prev1,prev2,prev3,diff}
-    IO.puts "State now for #{inspect next_neighbor} is #{inspect state}"
+    #IO.puts "State now for #{inspect next_neighbor} is #{inspect state}"
     lim = 0.0000000001
    
     statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
