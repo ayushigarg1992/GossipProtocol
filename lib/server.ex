@@ -45,7 +45,7 @@ defmodule Server do
     state = {count,s,w,ratio,prev1,prev2,prev3,diff}
     IO.puts "State now for #{inspect next_neighbor} is #{inspect state}"
     lim = 0.0000000001
-    IO.inspect(prev1)
+   
     statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
     if statement
     do
@@ -63,7 +63,11 @@ defmodule Server do
  
   def send_rumor(neigh,self_node, algo,next_neighbor) do
     chosen = Enum.random(neigh)
-    
+    {count,s,w,ratio,prev1,prev2,prev3,diff} = get_state(self_node)
+    s=s/2
+    w=w/2
+    state = {count,s,w,ratio,prev1,prev2,prev3,diff}
+    :global.sync()
     GenServer.cast(via_tuple(chosen), {:add_message,algo,self_node,next_neighbor})
     {count,s,w,ratio,prev1,prev2,prev3,diff} = get_state(next_neighbor)
     if algo == "gossip" do
@@ -86,7 +90,7 @@ defmodule Server do
    end
   
   def get_state(node_name) do
-
+    :global.sync()
     GenServer.call(via_tuple(node_name), :get_state)
   end
   def via_tuple(node_name) do
