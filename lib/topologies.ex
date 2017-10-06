@@ -239,25 +239,35 @@ defmodule Topologies do
     end
     
     def test_func(list1,list2,i,num) do
+        
         if Enum.at(list1,i) !=num do
         list2 = [Enum.at(list1,i)|list2]
         
         end
         if i+1< length list1 do
-        test_func(list1,list2,i+1,num)
+            
+            list3 = list2
+            test_func(list1,list2,i+1,num)
+        
+        IO.puts "list2: #{inspect list2} list3: #{inspect list3}"
         end
         
     end
-    def test_2(list1,pid) do
+    def test_2 do
+        list1=[1,2,3,4,5,67,7,8,6,5,4,4]
         
-        list2 =test_func(list1,list2,0,pid)
+        pid= Enum.at(list1,7)
+        IO.inspect(pid)
+        list2 = []
         
+        list = test_func(list1,list2,0,pid)
+        IO.puts "I am #{inspect list}"
     end
     def createFull(num) do
          pids = Enum.map(1..5, fn(x) ->spawn(&Topologies.rep/0)end )
          list=Enum.each(pids, fn(x)->IO.inspect(x)end)
         Enum.each 0..num-1, fn x ->
             send(Enum.at(pids,x),{pids,Enum.at(pids,x) , x+1}) 
-end
+    end
 end
 end
