@@ -43,14 +43,14 @@ defmodule Server do
       end
     
     state = {count,s,w,ratio,prev1,prev2,prev3,diff}
-    lim = 0.0000000001
+    lim = 0.00000001  
    
     statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
     if statement
     do
       IO.puts(" #{inspect self_node}- I have converged")
     else
-     # IO.puts "s/w: #{inspect ratio} s:#{inspect s} w:#{inspect w} "
+     IO.puts "Node #{inspect self_node} s/w: #{inspect ratio} s:#{inspect s} w:#{inspect w} "
     end
   end
     {:noreply, state}
@@ -82,7 +82,7 @@ defmodule Server do
       lim=0.0000000001
       statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
       if !statement do
-      Process.sleep(Enum.random(1000))
+      Process.sleep(Enum.random(100))
       send_rumor(neigh,self_node,algo,next_neighbor)
       else
       end
