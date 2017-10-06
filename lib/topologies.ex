@@ -237,7 +237,7 @@ defmodule Topologies do
     end
     end
     end
-
+    
     def createFull(num) do
          pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end )
          list=Enum.each(pids, fn(x)->IO.inspect(x)end)
