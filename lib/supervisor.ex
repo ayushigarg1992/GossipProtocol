@@ -5,7 +5,7 @@ defmodule Manager do
       end
       def start_node(selfNode,neigh,next_neighbor,id) do
 
-        Supervisor.start_child(:gossip_supervisor, [selfNode,neigh,next_neighbor,id])
+       Supervisor.start_child(:gossip_supervisor, [selfNode,neigh,next_neighbor,id])
         
       end
       def init(_) do
