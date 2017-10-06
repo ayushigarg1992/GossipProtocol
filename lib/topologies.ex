@@ -248,12 +248,10 @@ defmodule Topologies do
         end
         
     end
-    def test_2 do
-        list1=Enum.map(1..5, fn(x) ->spawn(&Topologies.rep/0)end )
+    def test_2(list1,pid) do
         
-        pid= Enum.at(list1,1)
         list2 =test_func(list1,list2,0,pid)
-        IO.inspect list2
+        
     end
     def createFull(num) do
          pids = Enum.map(1..5, fn(x) ->spawn(&Topologies.rep/0)end )
