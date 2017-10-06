@@ -99,12 +99,7 @@ defmodule Topologies do
                     neigh = [pid0,pid1,pid]
                     rand = Enum.at(Enum.at(pids,i+1),j+1)
                     
-<<<<<<< HEAD
-                
-                    send(me,{neigh, me, count})
-=======
                     send(selfNode,{neigh, selfNode, count})
->>>>>>> 0aae66e5ecef1b94aab55844826c1e8eec0e63b1
                 else if (i==0) do
                 
                     pid = Enum.at(Enum.at(pids,i+1),j)
@@ -170,12 +165,7 @@ defmodule Topologies do
             Enum.each 0..root-1, fn j ->
                 neigh = []
                count = (i*root) + j+1
-<<<<<<< HEAD
-               
-                me = Enum.at(Enum.at(pids,i),j)
-=======
                 selfNode = Enum.at(Enum.at(pids,i),j)
->>>>>>> 0aae66e5ecef1b94aab55844826c1e8eec0e63b1
                 
                 if (i==0 && j == 0) do
                     pid = Enum.at(Enum.at(pids,i+1),j)
@@ -249,8 +239,10 @@ defmodule Topologies do
     end
 
     def createFull(num) do
-        # pids = Enum.map(1..num, fn(x) ->Manager.start_node(selfNode,neigh,next_neighbor,id)end )
-        # list=Enum.each(pids, fn(x)->IO.inspect(x)end)
-        
-    end
+         pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end )
+         list=Enum.each(pids, fn(x)->IO.inspect(x)end)
+        Enum.each 0..num-1, fn x ->
+            send(Enum.at(pids,x),{pids,Enum.at(pids,x) , x+1}) 
+end
+end
 end
