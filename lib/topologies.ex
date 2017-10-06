@@ -266,10 +266,12 @@ defmodule Topologies do
         IO.puts "I am #{inspect list}"
     end
     def createFull(num,algo) do
-         pids = Enum.map(1..5, fn(x) ->spawn(&Topologies.rep/0)end )
+         pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end )
          list=Enum.each(pids, fn(x)->IO.inspect(x)end)
         Enum.each 0..num-1, fn x ->
-            send(Enum.at(pids,x),{pids,Enum.at(pids,x) , x+1,algo}) 
+            pid = List.delete_at(pids, x)
+            IO.inspect(pid)
+            send(Enum.at(pids,x),{pid,Enum.at(pids,x) , x+1,algo}) 
     end
 end
 end
