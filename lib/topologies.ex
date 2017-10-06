@@ -45,7 +45,7 @@ defmodule Topologies do
         num = root* root
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
-        
+        IO.inspect(pids)
         Enum.each 0..root-1, fn i ->
             
             Enum.each 0..root-1, fn j ->
@@ -239,8 +239,10 @@ defmodule Topologies do
     end
 
     def createFull(num) do
-        # pids = Enum.map(1..num, fn(x) ->Manager.start_node(selfNode,neigh,next_neighbor,id)end )
-        # list=Enum.each(pids, fn(x)->IO.inspect(x)end)
-        
-    end
+         pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end )
+         list=Enum.each(pids, fn(x)->IO.inspect(x)end)
+        Enum.each 0..num-1, fn x ->
+            send(Enum.at(pids,x),{pids,Enum.at(pids,x) , x+1}) 
+end
+end
 end
