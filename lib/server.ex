@@ -22,6 +22,8 @@ defmodule Server do
   def handle_cast({:add_message,algo,self_node,next_neighbor}, state) do
     
     #IO.puts "#{inspect get_state(next_neighbor)}"
+    if Process.alive?(self_node) do
+    {_,s2,w2,_,_,_,_,_} = get_state(self_node) 
     {count,s,w,ratio,prev1,prev2,prev3,diff} = state
     if algo=="gossip" do  
       if  count<=10 do
@@ -29,26 +31,28 @@ defmodule Server do
       else if count>=10 do Process.exit(self,:kill) end
       end
     else 
-      
-      if diff<0.00000000001 do
-        Process.exit(self,:kill)
-      else if algo=="push" do
-        
-        
-        prev1=prev2
-        prev2=prev3
-        prev3 = diff
-
-        diff = ratio-s/w
+      ratio2 = ratio
+      s=s+s2/2
+      w=w + w2/2
+      ratio = s/w
+      diff = ratio - ratio2
+      prev3=prev2
+      prev2=prev1
+      prev1=diff
        
-        s=s+s/2
-        w=w+w/2
-        ratio = s/w
       end
-    end
-    end  
-    state = {count,s,w,ratio,prev1,prev2,prev3,diff}
     
+    state = {count,s,w,ratio,prev1,prev2,prev3,diff}
+    IO.puts "State now for #{inspect next_neighbor} is #{inspect state}"
+    lim = 0.0000000001
+    IO.inspect(prev1)
+    statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
+    if statement
+    do
+      IO.puts(" #{inspect self_node}- I have converged")
+      
+    end
+  end
     {:noreply, state}
   end
   
@@ -71,9 +75,9 @@ defmodule Server do
         IO.puts "Node #{inspect next_neighbor} has heard the rumor 10 times"
       end
     else
-      
-      if diff>0.0000000001 do
-        
+      lim=0.0000000001
+      statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
+      if !statement do
       send_rumor(neigh,self_node,algo,next_neighbor)
       else
         IO.puts "Node #{inspect next_neighbor} has s: #{s} and w: #{w} and s/w is #{inspect s/w}"
