@@ -1,12 +1,12 @@
 defmodule Server do
   use GenServer
-  def start_link(selfNode,neigh,next_neighbor,id) do
+  def start_link(selfNode,neigh,next_neighbor,id,algo) do
     GenServer.start_link(__MODULE__, {0,id,1,0,0,0,0,0},name: via_tuple(next_neighbor))
     
     {count,s,w,ratio,pre1,pre2,prev3,diff} = get_state(next_neighbor)
     if count<10 do
       
-      send_rumor(neigh,selfNode,"push",next_neighbor)
+      send_rumor(neigh,selfNode,algo,next_neighbor)
     end
   end
   
@@ -49,7 +49,8 @@ defmodule Server do
     if statement
     do
       IO.puts(" #{inspect self_node}- I have converged")
-      
+    else
+     # IO.puts "s/w: #{inspect ratio} s:#{inspect s} w:#{inspect w} "
     end
   end
     {:noreply, state}
@@ -81,6 +82,7 @@ defmodule Server do
       lim=0.0000000001
       statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
       if !statement do
+      Process.sleep(Enum.random(1000))
       send_rumor(neigh,self_node,algo,next_neighbor)
       else
       end

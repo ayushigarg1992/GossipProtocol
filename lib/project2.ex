@@ -24,13 +24,13 @@ defmodule Project2 do
     cond do
       
      topo== "line" ->
-      Topologies.createLine(num)
+      Topologies.createLine(num,algo)
     topo == "2D" -> 
-      Topologies.createGrid(num)
+      Topologies.createGrid(num,algo)
     topo == "full" ->
-      Topologies.createFull(num)
+      Topologies.createFull(num,algo)
     topo == "imp2D"
-      Topologies.createImpGrid(num)
+      Topologies.createImpGrid(num,algo)
     
     end
   end
