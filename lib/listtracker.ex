@@ -14,7 +14,7 @@ defmodule Lists do
         GenServer.call(pid, :get_pids)
     end
     def handle_call(:get_pids, _from, list) do
-        IO.puts("handle_call list is #{inspect list}")
+        
         {:reply, list, list}
     end
     def handle_cast({:add_pid,item}, list) do
@@ -22,7 +22,6 @@ defmodule Lists do
         else
         list = [item|list]
         end
-        IO.puts(" handle_cast list is #{inspect list}")
         {:noreply, list}
     end
     def add_item(item,pid) do

@@ -3,8 +3,9 @@ defmodule Manager do
     def start_link do
          Supervisor.start_link(__MODULE__, [], name: :gossip_supervisor)
       end
-      def start_node(selfNode,neigh,next_neighbor,id,algo,pid_tracker,num) do
-        Supervisor.start_child(:gossip_supervisor, [selfNode,neigh,next_neighbor,id,algo,pid_tracker,num])
+      def start_node(selfNode,neigh,next_neighbor,id,algo,pid_tracker,num,time) do
+        
+        Supervisor.start_child(:gossip_supervisor, [selfNode,neigh,next_neighbor,id,algo,pid_tracker,num,time])
         
       end
       def init(_) do
