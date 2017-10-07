@@ -1,12 +1,12 @@
 defmodule Server do
   use GenServer
-  def start_link(selfNode,neigh,next_neighbor,id,algo) do
+  def start_link(selfNode,neigh,next_neighbor,id,algo,pid_tracker) do
     GenServer.start_link(__MODULE__, {0,id,1,0,0,0,0,0},name: via_tuple(next_neighbor))
     
     {count,s,w,ratio,pre1,pre2,prev3,diff} = get_state(next_neighbor)
     if count<10 do
       
-      send_rumor(neigh,selfNode,algo,next_neighbor)
+      send_rumor(neigh,selfNode,algo,next_neighbor,pid_tracker)
     end
   end
   
@@ -19,7 +19,7 @@ defmodule Server do
 
   end
   
-  def handle_cast({:add_message,algo,self_node,next_neighbor}, state) do
+  def handle_cast({:add_message,algo,self_node,next_neighbor,pid_tracker}, state) do
     
     #IO.puts "#{inspect get_state(next_neighbor)}"
     if Process.alive?(self_node) do
@@ -38,20 +38,26 @@ defmodule Server do
       diff = ratio - ratio2
       prev3=prev2
       prev2=prev1
-      prev1=diff
-       
+      prev1=ratio2
+      lim = 0.00000001  
+      
+      statement =  abs(prev1-prev2)>=lim && abs(prev2-prev3)>=lim
+      if statement do
+        IO.puts "Node #{inspect self_node} s/w: #{inspect ratio} s:#{inspect s} w:#{inspect w} "
+        
+         IO.puts(" #{inspect self_node}- I have converged")
+         :global.sync
+         count = Tracker.get_count(pid_tracker)
+        IO.puts count 
+
+         GenServer.cast(pid_tracker,{:set_count,count+1})
+       else
+        IO.puts "Node #{inspect self_node} s/w: #{inspect ratio} s:#{inspect s} w:#{inspect w} "
+       end   
       end
     
     state = {count,s,w,ratio,prev1,prev2,prev3,diff}
-    lim = 0.0000000001
-   
-    statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
-    if statement
-    do
-      IO.puts(" #{inspect self_node}- I have converged")
-    else
-     # IO.puts "s/w: #{inspect ratio} s:#{inspect s} w:#{inspect w} "
-    end
+    
   end
     {:noreply, state}
   end
@@ -61,29 +67,29 @@ defmodule Server do
     {:reply, state, state}
   end
  
-  def send_rumor(neigh,self_node, algo,next_neighbor) do
+  def send_rumor(neigh,self_node, algo,next_neighbor,pid_tracker) do
     chosen = Enum.random(neigh)
     {count,s,w,ratio,prev1,prev2,prev3,diff} = get_state(self_node)
     s=s/2
     w=w/2
     state = {count,s,w,ratio,prev1,prev2,prev3,diff}
     :global.sync()
-    GenServer.cast(via_tuple(chosen), {:add_message,algo,self_node,next_neighbor})
+    GenServer.cast(via_tuple(chosen), {:add_message,algo,self_node,next_neighbor,pid_tracker})
     {count,s,w,ratio,prev1,prev2,prev3,diff} = get_state(next_neighbor)
     if algo == "gossip" do
       
       if(count<10) do
      
-      send_rumor(neigh,self_node,algo,next_neighbor)
+      send_rumor(neigh,self_node,algo,next_neighbor,pid_tracker)
       else
         IO.puts "Node #{inspect next_neighbor} has heard the rumor 10 times"
       end
     else
       lim=0.0000000001
-      statement =  (prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
+      statement =  abs(prev1-prev2)>=lim && abs(prev2-prev3)>=lim#(prev1 != 0 && prev1 <= lim) && (prev2 != 0 && prev2 <= lim) && (prev3 != 0 && prev3 <= lim)
       if !statement do
-      Process.sleep(Enum.random(1000))
-      send_rumor(neigh,self_node,algo,next_neighbor)
+      Process.sleep(Enum.random(0..1000))
+      send_rumor(neigh,self_node,algo,next_neighbor,pid_tracker)
       else
       end
     end
