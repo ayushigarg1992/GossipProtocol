@@ -3,6 +3,8 @@ defmodule Topologies do
     def rep do
         
        receive do {neigh,selfNode,id,algo,pid_tracker}-> 
+       next_neighbor = Enum.random(neigh)
+       GenServer.cast(next_neighbor, {:id,next_neighbor,selfNode})
        IO.inspect(selfNode)
         list = get_state(selfNode)
         IO.puts("hio")
@@ -12,7 +14,7 @@ defmodule Topologies do
             else 
                IO.puts("h")
                 Manager.start_node(selfNode,neigh,next_neighbor,id,algo,pid_tracker) 
-                GenServer.cast(via_tuple(next_neighbor), {:pids,next_neighbor,selfNode})
+                GenServer.cast(next_neighbor, {:next_neighbor,selfNode})
         end 
     end
     end
@@ -32,10 +34,10 @@ defmodule Topologies do
 
   end
 
-  def handle_cast({:pids, next_neighbor,selfNode}, state) do
+  def handle_cast({:id,next_neighbor,selfNode}, state) do
         list = state
             list = [next_neighbor| list]
-            IO.puts("hi")
+            IO.puts("handle cast")
         state = list
     
     {:noreply, state}
@@ -46,19 +48,19 @@ defmodule Topologies do
   
   def get_state(node_name) do
     :global.sync()
-    IO.puts("hioo")
+    IO.puts("get state")
     IO.inspect(node_name)
     GenServer.call(node_name, :get_state)
   end
 
     def handle_call(:get_state, _from, state) do
-    IO.puts("pooja")
+    IO.puts("handle call")
     {:reply, state, state}
   end
 
   def via_tuple(node_name) do
         IO.inspect(node_name)
-        IO.puts("poo")
+        IO.puts("via tuple")
     {:via, MyRegistry, {:node_name, node_name}}
   end
 
@@ -319,7 +321,7 @@ defmodule Topologies do
          
         Enum.each 0..num-1, fn x ->
             pid = List.delete_at(pids, x)
-            IO.inspect(pid)
+            
             send(Enum.at(pids,x),{pid,Enum.at(pids,x) , x+1,algo,pid_tracker}) 
     end
 end
