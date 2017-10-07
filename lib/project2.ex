@@ -20,17 +20,18 @@ defmodule Project2 do
 
     MyRegistry.start_link
     Manager.start_link
+    {:ok,pid_tracker} = Tracker.start_link  
     #num = Integer.parse(num)
     cond do
       
      topo== "line" ->
-      Topologies.createLine(num,algo)
+      Topologies.createLine(num,algo,pid_tracker)
     topo == "2D" -> 
-      Topologies.createGrid(num,algo)
+      Topologies.createGrid(num,algo,pid_tracker)
     topo == "full" ->
-      Topologies.createFull(num,algo)
+      Topologies.createFull(num,algo,pid_tracker)
     topo == "imp2D"
-      Topologies.createImpGrid(num,algo)
+      Topologies.createImpGrid(num,algo,pid_tracker)
     
     end
   end
