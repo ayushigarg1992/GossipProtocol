@@ -10,7 +10,7 @@ defmodule Topologies do
             Manager.start_node(selfNode,neigh,next_neighbor,id,algo,pid_tracker,num) 
         end 
     end
-    end
+    
     end
 
     def start_link() do

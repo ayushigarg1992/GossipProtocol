@@ -44,7 +44,7 @@ defmodule Server do
       prev3=prev2
       prev2=prev1
       prev1=ratio2
-      lim = 0.00000001  
+      lim=0.0000000001
       
       statement =  abs(prev1-prev2)<=lim && abs(prev2-prev3)<=lim
       if statement do
