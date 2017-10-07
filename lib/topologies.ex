@@ -14,7 +14,7 @@ defmodule Topologies do
     end
 
     def start_link() do
-    GenServer.start_link(__MODULE__, [] ,name: :server )
+    {:ok,pid} = Lists.start_link
     
     
   end
