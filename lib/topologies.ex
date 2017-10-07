@@ -2,19 +2,27 @@ defmodule Topologies do
     use GenServer
     def rep do
         
-       receive do {neigh,selfNode,id,algo,pid_tracker,num}-> 
-        
-        
-        Enum.each neigh, fn next_neighbor-> 
+       receive do {neigh,selfNode,id,algo,pid_tracker,num,list_pid}-> 
+                    list = Lists.get_list(list_pid)
            
-            Manager.start_node(selfNode,neigh,next_neighbor,id,algo,pid_tracker,num) 
+        Enum.each neigh, fn item-> 
+            IO.inspect("while enum.each list is #{inspect list}")
+           if (Enum.member?(list,item)) do
+           else 
+            :global.sync()
+            GenServer.cast(list_pid,{:add_pid,item})
+            Manager.start_node(selfNode,neigh,item,id,algo,pid_tracker,num)
+            
+             
+            
         end 
+        end
     end
     end
     
 
     def start_link() do
-    GenServer.start_link(__MODULE__, [] ,name: :server )
+    #{:ok,pid} = Lists.start_link
     
     
   end
@@ -62,20 +70,20 @@ defmodule Topologies do
     def createLine(num, algo, pid_tracker) do
         neighbors = []
         pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end)
-        
+        {:ok,list_pid} = Lists.start_link
         Enum.each 0..num-1, fn id ->
             neigh = []
             selfNode = Enum.at(pids,id)
             if id==0 do
             
             neigh = [Enum.at(pids,id+1)]
-            send(selfNode,{neigh,selfNode,id+1,algo,pid_tracker,num})
+            send(selfNode,{neigh,selfNode,id+1,algo,pid_tracker,num,list_pid})
             else if id==num-1 do
             neigh = [Enum.at(pids,id-1)]
-            send(selfNode,{neigh,selfNode,id+1,algo,pid_tracker,num})
+            send(selfNode,{neigh,selfNode,id+1,algo,pid_tracker,num,list_pid})
             else
             neigh = [Enum.at(pids,id-1),Enum.at(pids,id+1)]
-            send(selfNode,{neigh,selfNode,id+1,algo,pid_tracker,num})
+            send(selfNode,{neigh,selfNode,id+1,algo,pid_tracker,num,list_pid})
             end
             
             end
@@ -84,6 +92,20 @@ defmodule Topologies do
           
     end
 
+
+        def chooseRandom(root,pids,neigh,selfNode) do
+            rand1 = Enum.random(0..root-1)
+             rand2 = Enum.random(0..root-1)
+            rand = Enum.at(Enum.at(pids,rand1),rand2)
+                if (rand == selfNode || Enum.member?(neigh,rand)) do
+                    chooseRandom(root,pids,neigh,selfNode)
+                else
+                    rand
+                end
+
+
+        end
+            
 
         def createImpGrid(num,algo,pid_tracker) do
         neighbor=[]
@@ -94,7 +116,9 @@ defmodule Topologies do
         num = root* root
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
+        
        
+       {:ok,list_pid} = Lists.start_link
         Enum.each 0..root-1, fn i ->
             
             Enum.each 0..root-1, fn j ->
@@ -109,78 +133,94 @@ defmodule Topologies do
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                    
                     neigh = [pid1,pid]
-                    rand = Enum.at(Enum.at(pids,i+1),j+1) 
+                    rand = chooseRandom(root,pids,neigh,selfNode)
+                    
                     neigh = [rand|neigh]
                     
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i==0 && j == root-1) do
               
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
                     rand = Enum.at(Enum.at(pids,i+1),j-1) 
-                    neigh = [pid1,pid,rand]
+                    neigh = [pid1,pid]
+                    rand = chooseRandom(root,pids,neigh,selfNode)
                     
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    neigh = [rand|neigh]
+                   
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i == root-1 && j == root-1) do
                
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
                     rand = Enum.at(Enum.at(pids,i-1),j-1)
-                    neigh = [pid1,pid,rand]
-                   
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    neigh = [pid1,pid]
+                    rand = chooseRandom(root,pids,neigh,selfNode)
+                    
+                    neigh = [rand|neigh]
+                                       
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i == root-1 && j == 0) do
               
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     neigh = [pid1,pid]
-                    rand = Enum.at(Enum.at(pids,i-1),j+1) 
+                    rand = chooseRandom(root,pids,neigh,selfNode)
+                    
                     neigh = [rand|neigh]
                
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (j==0) do
                
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i-1),j)
-                    rand = Enum.at(Enum.at(pids,i+1),j+1)
+                    neigh= [pid,pid1,pid0]
+                    rand = chooseRandom(root,pids,neigh,selfNode)
                     
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    neigh = [rand|neigh]
+                    
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i==0) do
                 
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    rand = Enum.at(Enum.at(pids,i+1),j-1) 
+                    rand = chooseRandom(root,pids,neigh,selfNode)
+                    
                     neigh = [rand|neigh]
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i==root-1) do
               
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    rand = Enum.at(Enum.at(pids,i-1),j-1) 
+                    rand = chooseRandom(root,pids,neigh,selfNode)
+                    
                     neigh = [rand|neigh]
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (j==root-1) do
                 
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
-                    rand = Enum.at(Enum.at(pids,i-1),j-1) 
+                    rand = chooseRandom(root,pids,neigh,selfNode)
+                    
                     neigh = [rand|neigh]
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else
                
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     pid2 = Enum.at(Enum.at(pids,i),j+1)
-                    rand = Enum.at(Enum.at(pids,i-1),j+1)
+                    neigh = [pid,pid1,pid0,pid2]
+                    rand = chooseRandom(root,pids,neigh,selfNode)
+                    
                     neigh = [rand|neigh]
-                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 end
                 end
             end
@@ -204,7 +244,7 @@ defmodule Topologies do
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
         
         
-
+        {:ok,list_pid} = Lists.start_link
         Enum.each 0..root-1, fn i ->
             Enum.each 0..root-1, fn j ->
                 neigh = []
@@ -217,53 +257,53 @@ defmodule Topologies do
                     neigh = [pid1,pid]
                     #                    send(selfNode,{neigh, selfNode, count,algo})
 
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i==0 && j == root-1) do
                
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i == root-1 && j == root-1) do
                
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i == root-1 && j == 0) do
                
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     neigh = [pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (j==0) do
               
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i-1),j)
                     neigh = [pid0,pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i==0) do
              
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (i==root-1) do
               
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else if (j==root-1) do
                 
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     neigh = [pid0,pid1,pid]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 else
               
                     pid = Enum.at(Enum.at(pids,i-1),j)
@@ -271,7 +311,7 @@ defmodule Topologies do
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     pid2 = Enum.at(Enum.at(pids,i),j+1)
                     neigh = [pid0,pid1,pid,pid2]
-                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num})
+                    send(Enum.at(Enum.at(pids,i),j),{neigh, selfNode, count,algo,pid_tracker,num,list_pid})
                 end
                 end
             end
@@ -311,11 +351,11 @@ defmodule Topologies do
     end
     def createFull(num,algo,pid_tracker) do
          pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end )
-         
+         {:ok,list_pid} = Lists.start_link
         Enum.each 0..num-1, fn x ->
             pid = List.delete_at(pids, x)
             
-            send(Enum.at(pids,x),{pid,Enum.at(pids,x) , x+1,algo,pid_tracker,num}) 
+            send(Enum.at(pids,x),{pid,Enum.at(pids,x) , x+1,algo,pid_tracker,num,list_pid}) 
     end
 end
 end
