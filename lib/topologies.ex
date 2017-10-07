@@ -1,4 +1,5 @@
 defmodule Topologies do
+    use GenServer
     def rep do
         
        receive do {neigh,selfNode,id,algo,pid_tracker,num}-> 
@@ -10,10 +11,58 @@ defmodule Topologies do
         end 
     end
     end
+    end
+
+    def start_link() do
+    GenServer.start_link(__MODULE__, [] ,name: :server )
     
-    def createLine(num,algo,pid_tracker) do
+    
+  end
+
+  def init(state) do
+    
+    stateup =  state
+
+    {:ok, stateup}
+
+  end
+
+  def handle_cast({:id,next_neighbor,selfNode}, state) do
+        list = state
+            list = [next_neighbor| list]
+            IO.puts("handle cast")
+        state = list
+    
+    {:noreply, state}
+  end
+  
+  
+ 
+  
+  def get_state(node_name) do
+    :global.sync()
+    IO.puts("get state")
+    IO.inspect(node_name)
+    GenServer.call(node_name, :get_state)
+  end
+
+    def handle_call(:get_state, _from, state) do
+    IO.puts("handle call")
+    {:reply, state, state}
+  end
+
+  def via_tuple(node_name) do
+        IO.inspect(node_name)
+        IO.puts("via tuple")
+    {:via, MyRegistry, {:node_name, node_name}}
+  end
+
+  
+    
+    def createLine(num, algo, pid_tracker) do
         neighbors = []
         pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end)
+        
         Enum.each 0..num-1, fn id ->
             neigh = []
             selfNode = Enum.at(pids,id)
@@ -45,7 +94,7 @@ defmodule Topologies do
         num = root* root
         pids = Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0) 
                 Enum.map(1..root, fn(x) ->spawn(&Topologies.rep/0)end)end)
-        IO.inspect(pids)
+       
         Enum.each 0..root-1, fn i ->
             
             Enum.each 0..root-1, fn j ->
@@ -68,18 +117,16 @@ defmodule Topologies do
               
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
-                    neigh = [pid1,pid]
                     rand = Enum.at(Enum.at(pids,i+1),j-1) 
-                    neigh = [rand|neigh]
+                    neigh = [pid1,pid,rand]
                     
                     send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
                 else if (i == root-1 && j == root-1) do
                
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j-1)
-                    neigh = [pid1,pid]
-                    rand = Enum.at(Enum.at(pids,i-1),j-1) 
-                    neigh = [rand|neigh]
+                    rand = Enum.at(Enum.at(pids,i-1),j-1)
+                    neigh = [pid1,pid,rand]
                    
                     send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
                 else if (i == root-1 && j == 0) do
@@ -96,7 +143,6 @@ defmodule Topologies do
                     pid = Enum.at(Enum.at(pids,i+1),j)
                     pid1 = Enum.at(Enum.at(pids,i),j+1)
                     pid0 = Enum.at(Enum.at(pids,i-1),j)
-                    neigh = [pid0,pid1,pid]
                     rand = Enum.at(Enum.at(pids,i+1),j+1)
                     
                     send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
@@ -123,7 +169,6 @@ defmodule Topologies do
                     pid = Enum.at(Enum.at(pids,i-1),j)
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
-                    neigh = [pid0,pid1,pid]
                     rand = Enum.at(Enum.at(pids,i-1),j-1) 
                     neigh = [rand|neigh]
                     send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
@@ -133,7 +178,6 @@ defmodule Topologies do
                     pid1 = Enum.at(Enum.at(pids,i+1),j)
                     pid0 = Enum.at(Enum.at(pids,i),j-1)
                     pid2 = Enum.at(Enum.at(pids,i),j+1)
-                    neigh = [pid0,pid1,pid,pid2]
                     rand = Enum.at(Enum.at(pids,i-1),j+1)
                     neigh = [rand|neigh]
                     send(selfNode,{neigh, selfNode, count,algo,pid_tracker,num})
@@ -267,10 +311,10 @@ defmodule Topologies do
     end
     def createFull(num,algo,pid_tracker) do
          pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end )
-         list=Enum.each(pids, fn(x)->IO.inspect(x)end)
+         
         Enum.each 0..num-1, fn x ->
             pid = List.delete_at(pids, x)
-            IO.inspect(pid)
+            
             send(Enum.at(pids,x),{pid,Enum.at(pids,x) , x+1,algo,pid_tracker,num}) 
     end
 end
