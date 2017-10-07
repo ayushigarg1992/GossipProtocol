@@ -2,7 +2,7 @@ defmodule Topologies do
     use GenServer
     def rep do
         
-       receive do {neigh,selfNode,id}-> 
+       receive do {neigh,selfNode,id,algo,pid_tracker}-> 
        IO.inspect(selfNode)
         list = get_state(selfNode)
         IO.puts("hio")
@@ -11,7 +11,7 @@ defmodule Topologies do
                IO.puts("hiiiii")
             else 
                IO.puts("h")
-                Manager.start_node(selfNode,neigh,next_neighbor,id) 
+                Manager.start_node(selfNode,neigh,next_neighbor,id,algo,pid_tracker) 
                 GenServer.cast(via_tuple(next_neighbor), {:pids,next_neighbor,selfNode})
         end 
     end
@@ -41,10 +41,7 @@ defmodule Topologies do
     {:noreply, state}
   end
   
-  def handle_call(:get_state, _from, state) do
-    IO.puts("pooja")
-    {:reply, state, state}
-  end
+  
  
   
   def get_state(node_name) do
@@ -53,6 +50,12 @@ defmodule Topologies do
     IO.inspect(node_name)
     GenServer.call(node_name, :get_state)
   end
+
+    def handle_call(:get_state, _from, state) do
+    IO.puts("pooja")
+    {:reply, state, state}
+  end
+
   def via_tuple(node_name) do
         IO.inspect(node_name)
         IO.puts("poo")
@@ -61,7 +64,7 @@ defmodule Topologies do
 
   
     
-    def createLine(num) do
+    def createLine(num, algo, pid_tracker) do
         neighbors = []
         pids = Enum.map(1..num, fn(x) ->spawn(&Topologies.rep/0)end)
         
