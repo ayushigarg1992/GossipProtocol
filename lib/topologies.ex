@@ -11,7 +11,7 @@ defmodule Topologies do
         end 
     end
     end
-    end
+    
 
     def start_link() do
     GenServer.start_link(__MODULE__, [] ,name: :server )
